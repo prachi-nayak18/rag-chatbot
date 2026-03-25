@@ -1,38 +1,32 @@
 from langchain_groq import ChatGroq
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
 
-def get_rag_chain(vector_store):
+def get_rag_chain(docs):
     llm = ChatGroq(
         model="llama-3.3-70b-versatile",
         api_key=os.getenv("GROQ_API_KEY"),
         temperature=0
     )
 
-    prompt = PromptTemplate.from_template("""
-    Neeche diye context ke basis pe question ka jawab do.
-    Agar answer nahi pata toh honestly bol do.
+    full_text = "\n\n".join([doc.page_content for doc in docs[:5]])
 
+    prompt = PromptTemplate.from_template("""
+    Answer the question based on the context below.
+    Give a detailed and helpful answer in simple English.
+    
     Context: {context}
     Question: {question}
     Answer:
     """)
 
-    def format_docs(docs):
-        return "\n\n".join(doc.page_content for doc in docs)
+    chain = prompt | llm | StrOutputParser()
 
-    retriever = vector_store.as_retriever(search_kwargs={"k": 3})
+    def answer(question):
+        return chain.invoke({"context": full_text, "question": question})
 
-    chain = (
-        {"context": retriever | format_docs, "question": RunnablePassthrough()}
-        | prompt
-        | llm
-        | StrOutputParser()
-    )
-
-    return chain
+    return answer

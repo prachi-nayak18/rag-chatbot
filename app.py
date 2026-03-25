@@ -42,7 +42,7 @@ if question := st.chat_input("PDF ke baare mein kuch pucho..."):
 
         with st.chat_message("assistant"):
             with st.spinner("Soch raha hoon..."):
-             answer = st.session_state.chain.invoke(question)
+             answer = st.session_state.chain(question)
         st.write(answer)
 
         st.session_state.messages.append({"role": "assistant", "content": answer})

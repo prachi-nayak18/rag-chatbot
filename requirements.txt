@@ -1,8 +1,9 @@
-streamlit
 langchain
 langchain-community
-langchain-openai
-faiss-cpu
+langchain-groq
+langchain-core
+langchain-text-splitters
+scikit-learn
+streamlit
 pypdf
-tiktoken
 python-dotenv
